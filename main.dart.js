@@ -59449,7 +59449,7 @@ case 1:return A.M(p,r)}})
 return A.O($async$qi,r)}}
 A.Xv.prototype={}
 A.Bp.prototype={
-N(a){return new A.t5(new A.Ax(null),"Flutter Camera Demo",A.aew(null,A.alc(B.N,B.Cy),!0),!1,null)}}
+N(a){return new A.t5(new A.Ax(null),"LFReader",A.aew(null,A.alc(B.N,B.Cy),!0),!1,null)}}
 A.Ax.prototype={
 N(a){return A.ae2(A.abi(B.KS),A.NU(A.ae_(A.a([A.acp(A.aet("Go to Camera"),new A.RR(a)),A.acp(A.aet("Pick an Image"),new A.RS())],t.l),B.j6,B.oA,B.oC),null,null))}}
 A.RR.prototype={
