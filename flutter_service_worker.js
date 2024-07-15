@@ -3,7 +3,7 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"main.dart.js": "60570922df2c837220fe7a03416ad6c5",
+const RESOURCES = {"main.dart.js": "076ac123f72ad32bad882f6b5b8c0514",
 "canvaskit/skwasm.js": "5d4f9263ec93efeb022bb14a3881d240",
 "canvaskit/skwasm.worker.js": "bfb704a6c714a75da9ef320991e88b03",
 "canvaskit/chromium/canvaskit.js": "901bb9e28fac643b7da75ecfd3339f3f",
@@ -21,17 +21,18 @@ const RESOURCES = {"main.dart.js": "60570922df2c837220fe7a03416ad6c5",
 "index.html": "c0b526592d0faef71532da37c1a8189d",
 "/": "c0b526592d0faef71532da37c1a8189d",
 "flutter.js": "383e55f7f3cce5be08fcf1f3881f585c",
-"flutter_bootstrap.js": "17eda92a5b0779327b2c60792cf80d61",
+"flutter_bootstrap.js": "2b7639d102ed23cb8306b1f6e729f91b",
 "manifest.json": "4272f8ef5aa5b7144b730e5ba2623b9c",
 "favicon.png": "904c0c37fe544911d5c6c3f08a014f8c",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
-"assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c",
+"assets/AssetManifest.bin": "30507dd3f00fa4adbb462bf98c0558d6",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "e986ebe42ef785b27164c36a9abc7818",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
-"assets/NOTICES": "84a1de7d1021a68d8acee3215d91978c",
-"assets/AssetManifest.bin.json": "69a99f98c8b1fb8111c5fb961769fcd8",
-"assets/fonts/MaterialIcons-Regular.otf": "1386ef101aefa1eb5f7a50e2796f4ae4",
-"assets/AssetManifest.json": "2efbb41d7877d10aac9d091f58ccd7b9",
+"assets/NOTICES": "e0b98eafeb734db570c778cfe55a74db",
+"assets/AssetManifest.bin.json": "b3ab6574f671665e4298fad7a03a2cce",
+"assets/fonts/MaterialIcons-Regular.otf": "0db35ae7a415370b89e807027510caf0",
+"assets/AssetManifest.json": "ee77bb3facd5642b48c81d99c8423559",
+"assets/assets/icon/icon.jpeg": "f68e829bae013317f055699568b86608",
 "version.json": "d1ec86a58165e3b4a32cb2b43ad305a9"};
 // The application shell files that are downloaded before a service worker can
 // start.
