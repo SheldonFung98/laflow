@@ -1,1 +1,1 @@
-extra-args: "--base-href=/laflow/"
+extra-args: "--base-href=/laflow/ --target=lib/webpage.dart"
