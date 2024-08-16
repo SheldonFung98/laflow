@@ -30,7 +30,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  video_player: ^2.9.1
+  provider: ^6.1.2
+  camera: ^0.11.0+2
   google_mlkit_document_scanner: ^0.2.0
+  vector_math: ^2.1.4
+  opencv_dart: ^1.2.1
   particles_flutter: "^1.0.0"
   url_launcher: ^6.3.0
   # The following adds the Cupertino Icons font to your application.
@@ -82,8 +87,22 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icon/icon.jpeg
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+    - assets/test_imgs/1.jpg
+    - assets/test_imgs/2.jpg
+    - assets/test_imgs/3.jpg
+    - assets/test_imgs/4.jpg
+    - assets/test_imgs/5.jpg
+    - assets/test_imgs/crop.png
+    - assets/test_imgs/ag10.png
+    - assets/test_imgs/ag20.png
+    - assets/test_imgs/ag50.png
+    - assets/test_imgs/ag90.png
+    - assets/test_imgs/ag100.png
+    - assets/test_imgs/ag10_1.jpg
+    - assets/test_imgs/ag20_1.jpg
+    - assets/test_imgs/ag50_1.jpg
+    - assets/test_imgs/ag90_1.jpg
+    - assets/test_imgs/ag100_1.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

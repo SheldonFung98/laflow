@@ -18,13 +18,13 @@ class Background extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     return Stack(children: [
       Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color.fromARGB(255, 65, 105, 225), // End color
-              Color(0x000000), // Start color
+              Color.fromARGB(255, 172, 182, 184), // End color
+              Color.fromARGB(255, 95, 126, 144), // End color
             ],
           ),
         ),
