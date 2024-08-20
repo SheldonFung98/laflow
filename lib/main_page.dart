@@ -31,6 +31,7 @@ class _MainPageState extends State<MainPage> {
   String _imagePath = '';
   List<double> avgValues = [];
   Uint8List? lateral_flow;
+  bool _openSetting = false;
 
   ImageProcessing imageProcessing = ImageProcessing();
 
@@ -45,17 +46,26 @@ class _MainPageState extends State<MainPage> {
     final data =
         await DefaultAssetBundle.of(context).load('assets/test_imgs/ag10.png');
     final bytes = data.buffer.asUint8List();
-    cv.Mat image = cv.imdecode(bytes, cv.IMREAD_COLOR);
     await imageProcessing.loadMat(cv.imdecode(bytes, cv.IMREAD_COLOR));
-    await imageProcessing.process();
     // await imageProcessing.alignSample();
-    setState(() {
-      _logText +=
+    if (await imageProcessing.process()) {
+      var text =
           'Bar Value: [${imageProcessing.barValue![0].toStringAsFixed(2)} ';
-      _logText += '${imageProcessing.barValue![1].toStringAsFixed(2)} ';
-      _logText += '${imageProcessing.barValue![2].toStringAsFixed(2)} ';
-      _logText += '${imageProcessing.barValue![3].toStringAsFixed(2)} ]\n';
-      _resultText = imageProcessing.result!.toStringAsFixed(2) + "%";
+      text += '${imageProcessing.barValue![1].toStringAsFixed(2)} ';
+      text += '${imageProcessing.barValue![2].toStringAsFixed(2)} ';
+      text += '${imageProcessing.barValue![3].toStringAsFixed(2)} ]';
+      setState(() {
+        log(text);
+        _resultText = imageProcessing.result!.toStringAsFixed(2) + "%";
+      });
+    } else {
+      log('Failed to process image.');
+    }
+  }
+
+  void log(String message) {
+    setState(() {
+      _logText = '$message\n$_logText';
     });
   }
 
@@ -80,100 +90,128 @@ class _MainPageState extends State<MainPage> {
         body: Background(
           child: Padding(
             padding: EdgeInsets.only(top: statusBarHeight),
-            child: Column(
+            child: Stack(
               children: [
-                Card(
-                  clipBehavior: Clip.hardEdge,
-                  color: Color.fromARGB(120, 255, 255, 255),
-                  child: Column(
-                    children: [
-                      ColorFiltered(
-                          colorFilter: ColorFilter.mode(
-                            Colors.black.withOpacity(
-                                0.8), // Adjust the opacity value as needed
-                            BlendMode.dstATop,
-                          ),
-                          child: imageProcessing.image == null
-                              ? Image.asset('assets/test_imgs/1.jpg')
-                              : Image.memory(imageProcessing
-                                  .convertToBytes(imageProcessing.image))),
-                      Row(
+                Column(
+                  children: [
+                    Card(
+                      clipBehavior: Clip.hardEdge,
+                      color: Color.fromARGB(120, 255, 255, 255),
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(
-                                    child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  child: imageProcessing.warped_img == null
-                                      ? Image.asset('assets/test_imgs/crop.png')
-                                      : Image.memory(
-                                          imageProcessing.convertToBytes(
-                                              imageProcessing.warped_img)),
-                                ))),
+                          ColorFiltered(
+                              colorFilter: ColorFilter.mode(
+                                Colors.black.withOpacity(
+                                    0.8), // Adjust the opacity value as needed
+                                BlendMode.dstATop,
+                              ),
+                              child: imageProcessing.image == null
+                                  ? Image.asset('assets/test_imgs/1.jpg')
+                                  : Image.memory(imageProcessing
+                                      .convertToBytes(imageProcessing.image))),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Center(
+                                        child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      child: imageProcessing.warped_img == null
+                                          ? Image.asset(
+                                              'assets/test_imgs/crop.png')
+                                          : Image.memory(
+                                              imageProcessing.convertToBytes(
+                                                  imageProcessing.warped_img)),
+                                    ))),
+                              ),
+                              Expanded(
+                                child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Center(
+                                        child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      child: imageProcessing.inspectionArea ==
+                                              null
+                                          ? Image.asset(
+                                              'assets/test_imgs/crop.png')
+                                          : Image.memory(imageProcessing
+                                              .convertToBytes(imageProcessing
+                                                  .inspectionArea)),
+                                    ))),
+                              )
+                            ],
                           ),
-                          Expanded(
-                            child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Center(
-                                    child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  child: imageProcessing.inspectionArea == null
-                                      ? Image.asset('assets/test_imgs/crop.png')
-                                      : Image.memory(
-                                          imageProcessing.convertToBytes(
-                                              imageProcessing.inspectionArea)),
-                                ))),
-                          )
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                // Transparent console card
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 200,
-                    child: Card(
-                      color: Color.fromARGB(195, 255, 255, 255),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          _logText,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 10.0,
-                          ),
-                        ),
-                      ),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 60,
-                    child: Card(
-                      color: Color.fromARGB(195, 255, 255, 255),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "Results: " + _resultText,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18.0,
+                    // Transparent console card
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 200,
+                        child: Card(
+                          color: Color.fromARGB(195, 255, 255, 255),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: SingleChildScrollView(
+                              child: Text(
+                                _logText,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 10.0,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 60,
+                        child: Card(
+                          color: Color.fromARGB(195, 255, 255, 255),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                "Results: " + _resultText,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  transform: Matrix4.translationValues(
+                    0.0, // Y-axis translation
+                    _openSetting ? 200.0 : screenHeight, // X-axis translation
+                    0.0, // Z-axis translation
+                  ),
+                  child: Card(
+                    color: Color.fromARGB(255, 255, 255, 255),
+                    child: Container(
+                      padding: const EdgeInsets.all(10.0),
+                      width: double.infinity,
+                      height: screenHeight,
+                      child: Column(
+                        children: [Text("Settings")],
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),
@@ -186,9 +224,7 @@ class _MainPageState extends State<MainPage> {
             fabOpenIcon:
                 Hero(tag: "camera_icon", child: Icon(Icons.camera_alt)),
             onPressedWhenClose: () async {
-              setState(() {
-                _logText += 'Start scanning...\n';
-              });
+              log('Start scanning...');
               // startScan(DocumentFormat.jpeg);
 
               await cameraProvider.initializeCamera();
@@ -199,25 +235,40 @@ class _MainPageState extends State<MainPage> {
                 ),
               );
 
+              if (cameraProvider.imageFile == null) {
+                return;
+              }
               await imageProcessing.loadXFile(cameraProvider.imageFile!);
-              await imageProcessing.process();
               // await imageProcessing.alignSample();
-
-              setState(() {
-                _logText +=
+              if (await imageProcessing.process()) {
+                var text =
                     'Bar Value: [${imageProcessing.barValue![0].toStringAsFixed(2)} ';
-                _logText +=
-                    '${imageProcessing.barValue![1].toStringAsFixed(2)} ';
-                _logText +=
-                    '${imageProcessing.barValue![2].toStringAsFixed(2)} ';
-                _logText +=
-                    '${imageProcessing.barValue![3].toStringAsFixed(2)} ]\n';
-                _resultText = imageProcessing.result!.toStringAsFixed(2) + "%";
-              });
+                text += '${imageProcessing.barValue![1].toStringAsFixed(2)} ';
+                text += '${imageProcessing.barValue![2].toStringAsFixed(2)} ';
+                text += '${imageProcessing.barValue![3].toStringAsFixed(2)} ]';
+                log(text);
+                setState(() {
+                  _resultText =
+                      imageProcessing.result!.toStringAsFixed(2) + "%";
+                });
+              } else {
+                log('Failed to process image.');
+              }
             },
             children: <Widget>[
-              IconButton(icon: const Icon(Icons.home), onPressed: () {}),
-              IconButton(icon: const Icon(Icons.settings), onPressed: () {}),
+              IconButton(
+                  icon: const Icon(Icons.camera),
+                  onPressed: () {
+                    log('Start scanning...');
+                    startScan(DocumentFormat.jpeg);
+                  }),
+              IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    setState(() {
+                      _openSetting = !_openSetting;
+                    });
+                  }),
               IconButton(
                   icon: Hero(
                       tag: "select_test", child: const Icon(Icons.burst_mode)),
@@ -236,20 +287,23 @@ class _MainPageState extends State<MainPage> {
                       await imageProcessing
                           .loadMat(cv.imdecode(bytes, cv.IMREAD_COLOR));
                       // await imageProcessing.alignSample();
-                      await imageProcessing.process();
-                      setState(() {
-                        _logText += 'Selected image: $result\n';
-                        _logText +=
+                      if (await imageProcessing.process()) {
+                        var text =
                             'Bar Value: [${imageProcessing.barValue![0].toStringAsFixed(2)} ';
-                        _logText +=
+                        text +=
                             '${imageProcessing.barValue![1].toStringAsFixed(2)} ';
-                        _logText +=
+                        text +=
                             '${imageProcessing.barValue![2].toStringAsFixed(2)} ';
-                        _logText +=
-                            '${imageProcessing.barValue![3].toStringAsFixed(2)} ]\n';
-                        _resultText =
-                            imageProcessing.result!.toStringAsFixed(2) + "%";
-                      });
+                        text +=
+                            '${imageProcessing.barValue![3].toStringAsFixed(2)} ]';
+                        log(text);
+                        setState(() {
+                          _resultText =
+                              imageProcessing.result!.toStringAsFixed(2) + "%";
+                        });
+                      } else {
+                        log('Failed to process image.');
+                      }
                     }
                   })
             ]));
@@ -269,23 +323,20 @@ class _MainPageState extends State<MainPage> {
         ),
       );
       _result = await _documentScanner?.scanDocument();
+
+      log('Extracted lateral flow test image.\n');
       setState(() {
         _imagePath = _result!.images[0];
-        _logText += 'Extracted lateral flow test image.\n';
       });
       cv.Mat image = cv.imread(_imagePath);
 
       try {
-        analyzeImg(image);
+        // analyzeImg(image);
       } catch (e) {
-        setState(() {
-          _logText += 'Error: $e.\n';
-        });
+        log('Error: $e.\n');
       }
     } catch (e) {
-      setState(() {
-        _logText += 'Error: $e.\n';
-      });
+      log('Error: $e.\n');
     }
   }
 

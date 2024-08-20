@@ -92,7 +92,6 @@ flutter:
     - assets/test_imgs/3.jpg
     - assets/test_imgs/4.jpg
     - assets/test_imgs/5.jpg
-    - assets/test_imgs/crop.png
     - assets/test_imgs/ag10.png
     - assets/test_imgs/ag20.png
     - assets/test_imgs/ag50.png

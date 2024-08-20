@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:opencv_dart/opencv_dart.dart' as cv;
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'dart:math';
 
 class ImageProcessing {
@@ -44,7 +43,8 @@ class ImageProcessing {
     image = img;
   }
 
-  Future<void> alignSample() async {
+  Future<bool> alignSample() async {
+    bool valid = false;
     cv.Mat img = image!.clone();
 
     // Convert to grayscale
@@ -59,26 +59,27 @@ class ImageProcessing {
     cv.Mat edges = cv.canny(enhance, 50, 200);
 
     // Apply morphological operations
-    cv.Mat morph_kernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 3));
-    edges = cv.morphologyEx(edges, cv.MORPH_CLOSE, morph_kernel, iterations: 6);
+    cv.Mat morphKernel = cv.getStructuringElement(cv.MORPH_RECT, (3, 3));
+    edges = cv.morphologyEx(edges, cv.MORPH_CLOSE, morphKernel, iterations: 6);
 
     // Find contours
     cv.Contours contours;
-    cv.Mat hierarchy;
-    (contours, hierarchy) =
+    (contours, _) =
         cv.findContours(edges, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-    print(hierarchy);
+    if (contours.isEmpty) {
+      return false;
+    }
     // draw contours
     cv.drawContours(image!, contours, -1, cv.Scalar(0, 255, 0), thickness: 3);
 
     // Sort contours by area
-    List<cv.VecPoint> contours_list = contours.toList();
-    contours_list
+    List<cv.VecPoint> contoursList = contours.toList();
+    contoursList
         .sort((a, b) => cv.contourArea(b).compareTo(cv.contourArea(a)));
 
     // Find the largest rectangle
     cv.VecPoint approx = cv.VecPoint();
-    for (var contour in contours_list) {
+    for (var contour in contoursList) {
       if (contour.length < 50) {
         continue;
       }
@@ -92,6 +93,8 @@ class ImageProcessing {
         break;
       }
     }
+
+    valid = approx.isNotEmpty;
 
     // cv.drawContours(image!, approx.toVecVecPoint, -1, cv.Scalar(255, 255, 0),
     //     thickness: 3);
@@ -177,31 +180,29 @@ class ImageProcessing {
     cv.Mat matrix = cv.getPerspectiveTransform2f(cornerMat, dstMat);
 
     warped_img = cv.warpPerspective(img, matrix, (width, height));
+    return valid;
   }
 
   Future<List<cv.Rect>> findVerticalStripes() async {
     // Convert to grayscale
-    cv.Mat gray = await cv.cvtColor(warped_img!.clone(), cv.COLOR_RGB2GRAY);
+    cv.Mat gray = cv.cvtColor(warped_img!.clone(), cv.COLOR_RGB2GRAY);
 
     // Apply CLAHE
-    gray = await clahe.apply(gray);
+    gray = clahe.apply(gray);
 
     // Apply thresholding
-    double rval;
     cv.Mat binary;
-    (rval, binary) =
-        await cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
+    (_, binary) =
+        cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
 
     // Apply morphological operations
-    cv.Mat morph_kernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5));
-    binary = await cv.morphologyEx(binary, cv.MORPH_OPEN, morph_kernel,
-        iterations: 3);
+    cv.Mat morphKernel = cv.getStructuringElement(cv.MORPH_RECT, (5, 5));
+    binary = cv.morphologyEx(binary, cv.MORPH_OPEN, morphKernel, iterations: 3);
 
     // Detect vertical lines
-    cv.Mat verticalKernel =
-        await cv.getStructuringElement(cv.MORPH_RECT, (1, 5));
-    cv.Mat verticalLines = await cv
-        .morphologyEx(binary, cv.MORPH_OPEN, verticalKernel, iterations: 5);
+    cv.Mat verticalKernel = cv.getStructuringElement(cv.MORPH_RECT, (1, 5));
+    cv.Mat verticalLines =
+        cv.morphologyEx(binary, cv.MORPH_OPEN, verticalKernel, iterations: 5);
 
     // Find contours
     // List<cv.MatOfPoint> contours = await cv.findContours(verticalLines, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
@@ -218,7 +219,7 @@ class ImageProcessing {
 
     List<cv.Rect> rects = [];
     for (var contour in contours) {
-      cv.Rect rect = await cv.boundingRect(contour);
+      cv.Rect rect = cv.boundingRect(contour);
       rects.add(rect);
       // cv.rectangle(warped_img!, rect, cv.Scalar(0, 255, 0), thickness: 3);
       // cv.circle(
@@ -300,7 +301,7 @@ class ImageProcessing {
   List<double> calculateBarValue(List<double> smoothed, bool isLeft) {
     smoothed = smoothed.sublist(0, smoothed.length - (smoothed.length % 4));
     const int barNum = 4;
-    int length = (smoothed.length / barNum).toInt();
+    int length = smoothed.length ~/ barNum;
     List<List<double>> reshaped = [];
     for (int i = 0; i < barNum; i++) {
       reshaped.add(smoothed.sublist(i * length, (i + 1) * length));
@@ -308,20 +309,19 @@ class ImageProcessing {
     if (!isLeft) {
       reshaped = reshaped.reversed.toList();
     }
-    List<double> _barValue = List.generate(barNum, (index) {
+    List<double> barValue = List.generate(barNum, (index) {
       return reshaped[index].reduce(max);
     });
 
-    double minRef = List.generate(barNum, (int) {
-          return reshaped[int].reduce(min);
+    double minRef = List.generate(barNum, (i) {
+          return reshaped[i].reduce(min);
         }).reduce((a, b) => a + b) /
         barNum;
 
-    print(minRef);
-    _barValue = _barValue.map((value) => value - minRef).toList();
-    double firstValue = _barValue[0];
-    _barValue = _barValue.map((value) => value / firstValue * 100).toList();
-    return _barValue;
+    barValue = barValue.map((value) => value - minRef).toList();
+    double firstValue = barValue[0];
+    barValue = barValue.map((value) => value / firstValue * 100).toList();
+    return barValue;
   }
 
   double lateralFlowRes(List<double> barValue) {
@@ -338,32 +338,36 @@ class ImageProcessing {
     return value;
   }
 
-  Future<void> process() async {
-    alignSample();
-    List<cv.Rect> rects = await findVerticalStripes();
+  Future<bool> process() async {
+    if (await alignSample()) {
+      List<cv.Rect> rects = await findVerticalStripes();
 
-    if (rects.isNotEmpty) {
-      cv.Rect reference = getReference(rects);
-      bool isLeft = reference.x < warped_img!.cols ~/ 2;
-      // rotate image 180 degrees if it is right
+      if (rects.isNotEmpty) {
+        cv.Rect reference = getReference(rects);
+        bool isLeft = reference.x < warped_img!.cols ~/ 2;
+        // rotate image 180 degrees if it is right
 
-      cv.Rect inspectionRect = getInspectionArea(reference, isLeft);
+        cv.Rect inspectionRect = getInspectionArea(reference, isLeft);
 
-      inspectionArea = warped_img!.region(inspectionRect);
+        inspectionArea = warped_img!.region(inspectionRect);
 
-      List<double> redCurve = calculateRedCurve(inspectionArea!);
-      // print("Red Curve: $redCurve");
-      List<double> smoothed = smoothCurve(redCurve);
-      barValue = calculateBarValue(smoothed, isLeft);
-      result = lateralFlowRes(barValue!);
+        List<double> redCurve = calculateRedCurve(inspectionArea!);
+        // print("Red Curve: $redCurve");
+        List<double> smoothed = smoothCurve(redCurve);
+        barValue = calculateBarValue(smoothed, isLeft);
+        result = lateralFlowRes(barValue!);
 
-      // draw
-      cv.rectangle(warped_img!, reference, cv.Scalar(0, 0, 255), thickness: 3);
-      cv.rectangle(warped_img!, inspectionRect, cv.Scalar(0, 255, 0),
-          thickness: 3);
-      if (!isLeft) {
-        inspectionArea = cv.rotate(inspectionArea!, cv.ROTATE_180);
+        // draw
+        cv.rectangle(warped_img!, reference, cv.Scalar(0, 0, 255),
+            thickness: 3);
+        cv.rectangle(warped_img!, inspectionRect, cv.Scalar(0, 255, 0),
+            thickness: 3);
+        if (!isLeft) {
+          inspectionArea = cv.rotate(inspectionArea!, cv.ROTATE_180);
+        }
+        return true;
       }
     }
+    return false;
   }
 }

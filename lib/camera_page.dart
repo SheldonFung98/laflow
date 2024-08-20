@@ -40,66 +40,63 @@ class _CameraPageState extends State<CameraPage> {
     }
 
     return Scaffold(
-        body: Padding(
-      padding: EdgeInsets.only(top: statusBarHeight),
-      child: Column(
-        children: [
-          SizedBox(
-            width: screenWidth,
-            height: camViewWeight,
-            child: Stack(children: [
-              CameraPreview(cameraProvider.cameraController!),
-              ClipPath(
-                clipper: CenterCropClipper(),
-                child: Container(
-                  color: Colors.black.withOpacity(0.8),
-                ),
-              ),
-              Container(
-                alignment: Alignment.topCenter,
-                padding: EdgeInsets.only(top: 20),
-                child: const Text(
-                  "Place the test sample in the frame",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+        body: Column(
+          children: [
+            SizedBox(
+              width: screenWidth,
+              height: camViewWeight,
+              child: Stack(children: [
+                CameraPreview(cameraProvider.cameraController!),
+                ClipPath(
+                  clipper: CenterCropClipper(),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.8),
                   ),
                 ),
-              )
-            ]),
-          ),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    // go back
-                    Navigator.pop(context);
-                  },
-                  child:
-                      Hero(tag: "cancel", child: Icon(Icons.cancel_outlined)),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await takePicture(cameraProvider).then((XFile? file) {
-                      print(
-                          "#############################################################");
-                      print(file?.path);
-                      cameraProvider.imageFile = file;
-                    });
-                    Navigator.pop(context);
-                  },
-                  child:
-                      Hero(tag: "camera_icon", child: Icon(Icons.camera_alt)),
-                ),
-              ],
+                Container(
+                  alignment: Alignment.topCenter,
+                  padding: EdgeInsets.only(top: statusBarHeight+20),
+                  child: const Text(
+                    "Place the test sample in the frame",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
+              ]),
             ),
-          ),
-        ],
-      ),
-    ));
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      // go back
+                      Navigator.pop(context);
+                    },
+                    child:
+                        Hero(tag: "cancel", child: Icon(Icons.cancel_outlined)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await takePicture(cameraProvider).then((XFile? file) {
+                        print(
+                            "#############################################################");
+                        print(file?.path);
+                        cameraProvider.imageFile = file;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child:
+                        Hero(tag: "camera_icon", child: Icon(Icons.camera_alt)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ));
   }
 
   void onTakePictureButtonPressed(CameraProvider camProvider) async {

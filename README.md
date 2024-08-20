@@ -1,12 +1,20 @@
-# LaFlow
 
-An intelligent Lateral Flow Reader APP
+<div align="center">
+    <img src="assets/icon/icon.jpeg" alt="logo" width="200" height="200">
+    <h1>LaFlow</h1>
+</div>
 
-## Web App
 
-[LFReader](https://sheldonfung98.github.io/laflow/)
 
-## Deploy
+An intelligent Lateral Flow Reader APP 
+
+[Download page](https://sheldonfung98.github.io/laflow/)
+
+## Algorithm
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SheldonFung98/laflow/blob/main/scripts/lateralflow.ipynb)
+
+## Deployment
 
 ### Deploy Android APP
 
