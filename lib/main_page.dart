@@ -75,6 +75,8 @@ class _MainPageState extends State<MainPage> {
     super.dispose();
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -118,8 +120,7 @@ class _MainPageState extends State<MainPage> {
                                         child: ClipRRect(
                                       borderRadius: BorderRadius.circular(10.0),
                                       child: imageProcessing.warped_img == null
-                                          ? Image.asset(
-                                              'assets/test_imgs/crop.png')
+                                          ? const Text("N/A")
                                           : Image.memory(
                                               imageProcessing.convertToBytes(
                                                   imageProcessing.warped_img)),
@@ -133,8 +134,7 @@ class _MainPageState extends State<MainPage> {
                                       borderRadius: BorderRadius.circular(10.0),
                                       child: imageProcessing.inspectionArea ==
                                               null
-                                          ? Image.asset(
-                                              'assets/test_imgs/crop.png')
+                                          ? const Text("N/A")
                                           : Image.memory(imageProcessing
                                               .convertToBytes(imageProcessing
                                                   .inspectionArea)),
@@ -253,6 +253,9 @@ class _MainPageState extends State<MainPage> {
                 });
               } else {
                 log('Failed to process image.');
+                setState(() {
+                  _resultText = "N/A";
+                });
               }
             },
             children: <Widget>[

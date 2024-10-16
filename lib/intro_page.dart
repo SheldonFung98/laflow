@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'page_router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import the services package
 
 
 class IntroPage extends StatefulWidget {
@@ -29,13 +30,20 @@ class _IntroPageState extends State<IntroPage> {
     );
   }
 
-  void goToMainPage() {
+  Future<void> goToMainPage() async {
     _timer.cancel();
-    Navigator.push(
+    // Navigator.push(
+    //   context,
+    //   PageRouter(builder: (context) => widget.mainPage, duration: 1200,),
+    // );
+    final result = await Navigator.push(
       context,
-      PageRouter(builder: (context) => widget.mainPage, duration: 1200,),
+      PageRouter(builder: (context) => widget.mainPage, duration: 1000,)
     );
-
+    // exit app
+    Future.delayed(const Duration(milliseconds: 800), () {
+      SystemNavigator.pop();
+    });
   }
 
   @override

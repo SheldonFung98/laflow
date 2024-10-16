@@ -339,34 +339,37 @@ class ImageProcessing {
   }
 
   Future<bool> process() async {
-    if (await alignSample()) {
-      List<cv.Rect> rects = await findVerticalStripes();
+    warped_img = null;
+    inspectionArea = null;
+    try {
+      if (await alignSample()) {
+        List<cv.Rect> rects = await findVerticalStripes();
 
-      if (rects.isNotEmpty) {
-        cv.Rect reference = getReference(rects);
-        bool isLeft = reference.x < warped_img!.cols ~/ 2;
-        // rotate image 180 degrees if it is right
+        if (rects.isNotEmpty) {
+          cv.Rect reference = getReference(rects);
+          bool isLeft = reference.x < warped_img!.cols ~/ 2;
+          // rotate image 180 degrees if it is right
 
-        cv.Rect inspectionRect = getInspectionArea(reference, isLeft);
-
-        inspectionArea = warped_img!.region(inspectionRect);
-
-        List<double> redCurve = calculateRedCurve(inspectionArea!);
-        // print("Red Curve: $redCurve");
-        List<double> smoothed = smoothCurve(redCurve);
-        barValue = calculateBarValue(smoothed, isLeft);
-        result = lateralFlowRes(barValue!);
-
-        // draw
-        cv.rectangle(warped_img!, reference, cv.Scalar(0, 0, 255),
-            thickness: 3);
-        cv.rectangle(warped_img!, inspectionRect, cv.Scalar(0, 255, 0),
-            thickness: 3);
-        if (!isLeft) {
-          inspectionArea = cv.rotate(inspectionArea!, cv.ROTATE_180);
+          cv.Rect inspectionRect = getInspectionArea(reference, isLeft);
+          inspectionArea = warped_img!.region(inspectionRect);
+          List<double> redCurve = calculateRedCurve(inspectionArea!);
+          // print("Red Curve: $redCurve");
+          List<double> smoothed = smoothCurve(redCurve);
+          barValue = calculateBarValue(smoothed, isLeft);
+          result = lateralFlowRes(barValue!);
+          // draw
+          cv.rectangle(warped_img!, reference, cv.Scalar(0, 0, 255),
+              thickness: 3);
+          cv.rectangle(warped_img!, inspectionRect, cv.Scalar(0, 255, 0),
+              thickness: 3);
+          if (!isLeft) {
+            inspectionArea = cv.rotate(inspectionArea!, cv.ROTATE_180);
+          }
+          return true;
         }
-        return true;
       }
+    } catch (e) {
+      print('Error: $e');
     }
     return false;
   }
