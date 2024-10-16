@@ -262,12 +262,16 @@ class _MainPageState extends State<MainPage> {
               IconButton(
                   icon: const Icon(Icons.camera),
                   onPressed: () {
+                    log("Funtionality not implemented yet.");
+                    return;
                     log('Start scanning...');
                     startScan(DocumentFormat.jpeg);
                   }),
               IconButton(
                   icon: const Icon(Icons.settings),
                   onPressed: () {
+                    log("Funtionality not implemented yet.");
+                    return;
                     setState(() {
                       _openSetting = !_openSetting;
                     });
